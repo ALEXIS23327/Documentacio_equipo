@@ -9,7 +9,6 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.BulletSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -19,6 +18,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,6 +40,12 @@ public class NoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
 
+        Button btnChecklist = findViewById(R.id.btnChecklist);
+        btnChecklist.setOnClickListener(v -> {
+            int pos = noteEditText.getSelectionStart();
+            noteEditText.getText().insert(pos, "☐ ");
+        });
+
         // Inicialización
         dateView = findViewById(R.id.dateView);
         noteEditText = findViewById(R.id.noteEditText);
@@ -50,7 +57,6 @@ public class NoteActivity extends AppCompatActivity {
         btnFavorito = findViewById(R.id.btnFavorito);
         categorySpinner = findViewById(R.id.categorySpinner);
 
-        // Cargar categorías al Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.categorias_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -63,7 +69,7 @@ public class NoteActivity extends AppCompatActivity {
         today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         noteEditText.setText(loadFormattedNote(noteId));
-        loadCategoriaSeleccionada(noteId); // <-- Nueva línea
+        loadCategoriaSeleccionada(noteId);
 
         boolean isToday = selectedDate.equals(today);
         boolean isFuture = selectedDate.compareTo(today) > 0;
@@ -81,14 +87,12 @@ public class NoteActivity extends AppCompatActivity {
             disableToolbar();
         }
 
-        // Guardar nota
         saveButton.setOnClickListener(v -> {
             saveNote(noteId, noteEditText.getText());
-            saveCategoriaSeleccionada(noteId); // <-- Nueva línea
+            saveCategoriaSeleccionada(noteId);
             Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show();
         });
 
-        // Formato de título
         noteEditText.addTextChangedListener(new TextWatcher() {
             boolean editing = false;
 
@@ -121,17 +125,14 @@ public class NoteActivity extends AppCompatActivity {
             }
         });
 
-        // Botones de formato
         btnBold.setOnClickListener(v -> applyStyle(new StyleSpan(Typeface.BOLD)));
         btnItalic.setOnClickListener(v -> applyStyle(new StyleSpan(Typeface.ITALIC)));
         btnUnderline.setOnClickListener(v -> applyStyle(new UnderlineSpan()));
         btnBullet.setOnClickListener(v -> {
             int start = noteEditText.getSelectionStart();
-            int end = noteEditText.getSelectionEnd();
-            noteEditText.getText().setSpan(new BulletSpan(30), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            noteEditText.getText().insert(start, "• ");
         });
 
-        // ⭐ Botón Favorito
         btnFavorito.setOnClickListener(v -> {
             if (FavoritosManager.esFavorito(this, noteId)) {
                 FavoritosManager.eliminarFavorito(this, noteId);
@@ -144,8 +145,30 @@ public class NoteActivity extends AppCompatActivity {
             }
         });
 
-        // Estado inicial del botón favorito
         btnFavorito.setText(FavoritosManager.esFavorito(this, noteId) ? "★" : "☆");
+
+        // IMPLEMENTACIÓN DE CHECKLIST (☐ ↔ ☑)
+        noteEditText.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                int offset = noteEditText.getOffsetForPosition(event.getX(), event.getY());
+                Editable text = noteEditText.getText();
+
+                int lineStart = text.toString().lastIndexOf('\n', offset - 1) + 1;
+                int lineEnd = text.toString().indexOf('\n', offset);
+                if (lineEnd == -1) lineEnd = text.length();
+
+                String line = text.subSequence(lineStart, lineEnd).toString();
+
+                if (line.trim().startsWith("☐")) {
+                    String newLine = line.replaceFirst("☐", "☑");
+                    text.replace(lineStart, lineEnd, newLine);
+                } else if (line.trim().startsWith("☑")) {
+                    String newLine = line.replaceFirst("☑", "☐");
+                    text.replace(lineStart, lineEnd, newLine);
+                }
+            }
+            return false;
+        });
     }
 
     private void applyStyle(Object style) {
