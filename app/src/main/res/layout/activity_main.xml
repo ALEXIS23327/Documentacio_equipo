@@ -1,0 +1,26 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <CalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buscar nota"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnFavoritos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Favoritos"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>
