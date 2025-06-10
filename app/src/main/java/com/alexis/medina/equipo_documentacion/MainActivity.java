@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CalendarView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Locale;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+
 
     CalendarView calendarView;
     Button btnSearch, btnFavoritos;

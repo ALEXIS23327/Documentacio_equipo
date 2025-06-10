@@ -64,4 +64,18 @@
         android:layout_height="wrap_content"
         android:text="☐" />
 
+    <Button
+    android:id="@+id/btnDeleteNote"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Eliminar Nota"
+    android:layout_marginEnd="8dp"/>
+
+    <Button
+        android:id="@+id/exportButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exportar Nota" />
+
+
 </LinearLayout>
